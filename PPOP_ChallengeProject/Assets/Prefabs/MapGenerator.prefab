@@ -43,3 +43,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ccbcf31c1564146bc9205266492961, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MapWidth: 10
+  MapHeight: 10
+  BaseTilePrefab: {fileID: 678515821016878808, guid: 37a90d4511f3be24292964b03fc35b8c, type: 3}
+  InaccessibleTilePrefab: {fileID: 72539645745534702, guid: 66443e100990cb6429a64f3aadd20d36, type: 3}
+  ExtraTilePrefabs:
+  - {fileID: 2537128743135760923, guid: 22ce2b998cccd6b4fa03a3ad85d0e632, type: 3}
+  - {fileID: 5508682141239864576, guid: 50fb2b46e5b5bde449b32697355700cc, type: 3}
+  - {fileID: 5249494347242906584, guid: a5ac061df8eba7b4fbd9a1ff988271ae, type: 3}
+  PathDeviationProbability: 15
+  TilePlacementProbability: 50
+  NumberOfSeeds: 7
+  SpreadProbability: 70
