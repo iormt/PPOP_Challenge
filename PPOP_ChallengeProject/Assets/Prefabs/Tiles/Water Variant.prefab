@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 686798452195905679, guid: e72b74a8e5bb3644d81ae8791e6498ef, type: 3}
       propertyPath: Cost
-      value: 100000
+      value: 1000000
       objectReference: {fileID: 0}
     - target: {fileID: 686798452195905679, guid: e72b74a8e5bb3644d81ae8791e6498ef, type: 3}
       propertyPath: Material
