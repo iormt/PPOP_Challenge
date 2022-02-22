@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PathFinding;
+
 namespace Assets.Scripts.MapGeneration
 {
     public class MapGenerator : MonoBehaviour
@@ -36,10 +37,10 @@ namespace Assets.Scripts.MapGeneration
         #endregion
 
         private Dictionary<Vector3, Tile> _tileDictionary = new Dictionary<Vector3, Tile>();
-        //private List<Vector3> _seeds = new List<Vector3>();
+        private List<Tile> _currentPath = new List<Tile>();
 
-        private Tile StartTile = null;
-        private Tile EndTile = null;
+        private Tile _startTile = null;
+        private Tile _endTile = null;
 
         private void OnDestroy()
         {
@@ -55,17 +56,83 @@ namespace Assets.Scripts.MapGeneration
         }
         private void Update()
         {
-            if (Input.GetButtonDown("Cancel") && StartTile && EndTile)
+            if (Input.GetButtonDown("Cancel") && _startTile && _endTile)
             {
-                foreach (Tile node in AStar.GetPath(StartTile, EndTile))
-                {
-                    node.DehighlightTile();
-                }
-                StartTile.DehighlightTile();
-                StartTile = null;
-                EndTile = null;
+                DehighlightPath(_startTile, _endTile, _currentPath);
+                _startTile.DehighlightTile();
+                _startTile = null;
+                _endTile = null;
+            }
+        }        
+        //TODO: Refactor OnTileClicked
+        private void OnTileClicked(Tile tile)
+        {
+            if (!tile) return;
+
+            if (!_startTile)
+            {
+                _startTile = tile;
+                _startTile.HighlightTile(true);
+            }
+            else if (_startTile && !_endTile)
+            {
+                _endTile = tile;
+                _currentPath = GetTilePath(); 
+                HighlightPath(_startTile, _endTile, _currentPath);
+            }
+            else if (_startTile && _endTile)
+            {
+                DehighlightPath(_startTile, _endTile, _currentPath);
+                _endTile = tile;
+                _currentPath = GetTilePath();
+                HighlightPath(_startTile, _endTile, _currentPath);
             }
         }
+
+        private List<Tile> GetTilePath()
+        {
+            List<Tile> tilePath = new List<Tile>();
+
+            foreach(Tile node in AStar.GetPath(_startTile, _endTile))
+            {
+                tilePath.Add(node);
+            }
+
+            return tilePath;
+        }
+
+        private void HighlightPath(Tile startTile, Tile endTile, List<Tile> path)
+        {
+            for(int i = 0; i < path.Count; i++)
+            {
+                if (path[i] == endTile)
+                {
+                    path[i].HighlightTile(true);
+                    return;
+                }
+                if (i + 1 < path.Count 
+                    && path[i + 1].GetCost() >= InaccessibleTilePrefab.GetComponent<Tile>().GetCost())
+                {
+
+                    _endTile = path[i];
+                    path[i].HighlightTile(true);
+                    return;
+                }
+                if (i + 1 < path.Count && path[i + 1].GetCost() < InaccessibleTilePrefab.GetComponent<Tile>().GetCost())
+                {
+                    if (path[i].GetInstanceID() != startTile.GetInstanceID()
+                        && path[i].GetInstanceID() != endTile.GetInstanceID()) path[i].HighlightTile(false);
+                }
+            }
+        }
+        private void DehighlightPath(Tile startTile, Tile endTile, List<Tile> path)
+        {
+            foreach (Tile node in path)
+            {
+                if (node.GetInstanceID() != startTile.GetInstanceID()) node.DehighlightTile();
+            }
+        }
+
         private void Init()
         {
             Tile.OnTileClicked += OnTileClicked;
@@ -271,41 +338,6 @@ namespace Assets.Scripts.MapGeneration
             {
                 Tile neighbour = FindTileByCoordinates(tileCoordinates + neighbourOffsetArray[key]);
                 if (neighbour) tile.GetNeighbours().Add(neighbour);
-            }
-        }
-        //TODO: Refactor OnTileClicked
-        private void OnTileClicked(Tile tile)
-        {
-            if (!tile) return;
-
-            if (!StartTile)
-            {
-                StartTile = tile;
-                StartTile.HighlightTile(true);
-            }
-            else if (StartTile && !EndTile)
-            {
-                EndTile = tile;
-                EndTile.HighlightTile(true);
-                foreach (Tile node in AStar.GetPath(StartTile, EndTile))
-                {
-                    if (node.GetInstanceID() != StartTile.GetInstanceID()
-                        && node.GetInstanceID() != EndTile.GetInstanceID()) node.HighlightTile(false);
-                }
-            }
-            else if (StartTile && EndTile)
-            {
-                foreach (Tile node in AStar.GetPath(StartTile, EndTile))
-                {
-                    if (node.GetInstanceID() != StartTile.GetInstanceID()) node.DehighlightTile();
-                }
-                EndTile = tile;
-                EndTile.HighlightTile(true);
-                foreach (Tile node in AStar.GetPath(StartTile, EndTile))
-                {
-                    if (node.GetInstanceID() != StartTile.GetInstanceID()
-                        && node.GetInstanceID() != EndTile.GetInstanceID()) node.HighlightTile(false);
-                }
             }
         }
         private void CreateDirectTilePath(Vector3 start, Vector3 end, GameObject tilePrefab)
