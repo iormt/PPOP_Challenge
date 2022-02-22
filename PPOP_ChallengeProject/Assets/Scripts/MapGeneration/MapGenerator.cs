@@ -64,7 +64,6 @@ namespace Assets.Scripts.MapGeneration
                 _endTile = null;
             }
         }        
-        //TODO: Refactor OnTileClicked
         private void OnTileClicked(Tile tile)
         {
             if (!tile) return;
